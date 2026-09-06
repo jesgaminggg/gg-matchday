@@ -28,6 +28,13 @@ const userSchema =
         default: "",
       },
 
+      playerProfile: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Player",
+        default: null,
+        index: true,
+      },
+
       role: {
         type: String,
         enum: [
