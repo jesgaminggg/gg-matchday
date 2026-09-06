@@ -23,10 +23,12 @@ const __dirname =
   );
 
 const serviceAccountPath =
-  path.join(
-    __dirname,
-    "firebase-service-account.json"
-  );
+  process.env.RENDER
+    ? "/etc/secrets/firebase-service-account.json"
+    : path.join(
+        __dirname,
+        "firebase-service-account.json"
+      );
 
 function getFirebaseAdmin() {
   if (getApps().length > 0) {
