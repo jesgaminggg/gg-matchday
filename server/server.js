@@ -79,13 +79,14 @@ async function startServer() {
     );
 
     app.listen(
-      PORT,
-      () => {
-        console.log(
-          `✅ API running on http://localhost:${PORT}`
-        );
-      }
+  PORT,
+  "0.0.0.0",
+  () => {
+    console.log(
+      `✅ API running on http://0.0.0.0:${PORT}`
     );
+  }
+);
   } catch (error) {
     console.error(
       "❌ MongoDB connection failed:"
