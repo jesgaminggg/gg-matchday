@@ -1,7 +1,10 @@
+import dotenv from "dotenv";
 import express from "express";
 import { GoogleGenAI } from "@google/genai";
 
 import Match from "../models/Match.js";
+
+dotenv.config();
 
 const router = express.Router();
 
