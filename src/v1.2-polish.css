@@ -37,20 +37,18 @@
   min-height: 104px;
 }
 
-/* Player profiles */
-.player-profile,
-.player-profile-card,
-.profile-modal {
-  content-visibility: auto;
-}
-
+/* Player profile polish */
 .player-profile img,
-.player-profile-card img,
-.profile-modal img {
+.player-profile-card img {
   image-rendering: auto;
 }
 
-/* Gallery images are allowed to render progressively instead of blocking the page. */
+/* Gallery rendering can be skipped until gallery cards are near the viewport. */
+.gallery-item {
+  content-visibility: auto;
+  contain-intrinsic-size: 360px 420px;
+}
+
 .home-gallery-strip img,
 .gallery-grid img,
 .gallery-list img,
