@@ -6,8 +6,7 @@ import {
   requireAuth,
 } from "../middleware/auth.js";
 
-const router =
-  express.Router();
+const router = express.Router();
 
 // ==========================================
 // GET GALLERY
@@ -18,34 +17,37 @@ router.get(
   "/",
   async (req, res) => {
     try {
-      const photos =
-        await Gallery.find()
-          .populate(
-            "matchId",
-            "name date teamA teamB"
-          )
-          .populate(
-            "playerId",
-            "name profileImage"
-          )
-          .sort({
-            createdAt: -1,
-          });
+      const requestedLimit = Number(req.query.limit);
+      const limit = Number.isFinite(requestedLimit)
+        ? Math.min(Math.max(Math.trunc(requestedLimit), 1), 60)
+        : 40;
 
-      res.json(
-        photos
-      );
+      const photos = await Gallery.find()
+        .select(
+          "imageUrl caption uploadedBy uploadedByName matchId playerId createdAt"
+        )
+        .populate(
+          "matchId",
+          "name date teamA teamB"
+        )
+        .populate(
+          "playerId",
+          "name profileImage"
+        )
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .lean();
+
+      res.set("Cache-Control", "public, max-age=10, stale-while-revalidate=30");
+      res.json(photos);
     } catch (error) {
       console.error(
         "Gallery fetch error:",
         error
       );
 
-      res.status(
-        500
-      ).json({
-        message:
-          "Failed to load gallery.",
+      res.status(500).json({
+        message: "Failed to load gallery.",
       });
     }
   }
@@ -70,64 +72,35 @@ router.post(
 
       if (
         !imageUrl ||
-        typeof imageUrl !==
-          "string"
+        typeof imageUrl !== "string"
       ) {
-        return res.status(
-          400
-        ).json({
-          message:
-            "Image URL is required.",
+        return res.status(400).json({
+          message: "Image URL is required.",
         });
       }
 
-      const photo =
-        await Gallery.create({
-          imageUrl:
-            imageUrl.trim(),
+      const photo = await Gallery.create({
+        imageUrl: imageUrl.trim(),
+        caption:
+          typeof caption === "string"
+            ? caption.trim()
+            : "",
+        uploadedBy: req.user._id,
+        uploadedByName: req.user.name || "",
+        uploadedByEmail: req.user.email || "",
+        matchId: matchId || null,
+        playerId: playerId || null,
+      });
 
-          caption:
-            typeof caption ===
-            "string"
-              ? caption.trim()
-              : "",
-
-          uploadedBy:
-            req.user._id,
-
-          uploadedByName:
-            req.user.name ||
-            "",
-
-          uploadedByEmail:
-            req.user.email ||
-            "",
-
-          matchId:
-            matchId ||
-            null,
-
-          playerId:
-            playerId ||
-            null,
-        });
-
-      res.status(
-        201
-      ).json(
-        photo
-      );
+      res.status(201).json(photo);
     } catch (error) {
       console.error(
         "Gallery upload error:",
         error
       );
 
-      res.status(
-        500
-      ).json({
-        message:
-          "Failed to save gallery photo.",
+      res.status(500).json({
+        message: "Failed to save gallery photo.",
       });
     }
   }
@@ -143,66 +116,34 @@ router.delete(
   requireAuth,
   async (req, res) => {
     try {
-      const user =
-        req.user;
+      const user = req.user;
 
-      const photo =
-        await Gallery.findById(
-          req.params.id
-        );
+      const photo = await Gallery.findById(
+        req.params.id
+      );
 
       if (!photo) {
-        return res.status(
-          404
-        ).json({
-          message:
-            "Photo not found.",
+        return res.status(404).json({
+          message: "Photo not found.",
         });
       }
 
-      /*
-        Admin can delete anything.
-
-        An editor can delete only
-        photos they uploaded.
-      */
-
-      const isAdmin =
-        user.role ===
-        "admin";
-
+      const isAdmin = user.role === "admin";
       const isOwner =
-        String(
-          photo.uploadedBy
-        ) ===
-        String(
-          user._id
-        );
+        String(photo.uploadedBy) === String(user._id);
+      const isEditor = user.role === "editor";
 
-      const isEditor =
-        user.role ===
-        "editor";
-
-      if (
-        !isAdmin &&
-        !(isEditor &&
-          isOwner)
-      ) {
-        return res.status(
-          403
-        ).json({
+      if (!isAdmin && !(isEditor && isOwner)) {
+        return res.status(403).json({
           message:
             "You do not have permission to delete this photo.",
         });
       }
 
-      await Gallery.findByIdAndDelete(
-        req.params.id
-      );
+      await Gallery.findByIdAndDelete(req.params.id);
 
       res.json({
-        message:
-          "Photo deleted.",
+        message: "Photo deleted.",
       });
     } catch (error) {
       console.error(
@@ -210,11 +151,8 @@ router.delete(
         error
       );
 
-      res.status(
-        500
-      ).json({
-        message:
-          "Failed to delete photo.",
+      res.status(500).json({
+        message: "Failed to delete photo.",
       });
     }
   }
