@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
+import './v1.2-performance.js'
 import App from './App.jsx'
 import ProfileRequests from './ProfileRequests.jsx'
 
