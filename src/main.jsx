@@ -12,14 +12,14 @@ import './v2-record.js'
 import './v2-auth-bridge.js'
 import App from './App.jsx'
 import ProfileRequests from './ProfileRequests.jsx'
-import V2Features from './V2Features.jsx'
+import V2FeaturesSafe from './V2FeaturesSafe.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <>
       <App />
       <ProfileRequests />
-      <V2Features />
+      <V2FeaturesSafe />
     </>
   </StrictMode>,
 )
