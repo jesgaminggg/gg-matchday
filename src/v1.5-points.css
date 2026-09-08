@@ -1,0 +1,201 @@
+/* =========================================================
+   v1.5 — GG RATING + AWARDS
+========================================================= */
+
+.gg-rating-entry-list {
+  display: grid;
+  gap: 8px;
+}
+
+.gg-rating-entry {
+  display: grid;
+  grid-template-columns: 1fr 120px;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.gg-rating-entry-copy strong,
+.gg-rating-entry-copy small {
+  display: block;
+}
+
+.gg-rating-entry-copy small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.gg-rating-entry input {
+  text-align: center;
+}
+
+.gg-awards-button {
+  position: fixed;
+  left: 22px;
+  bottom: 22px;
+  z-index: 80;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(16, 19, 26, 0.92);
+  color: var(--text);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(16px);
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.gg-awards-button:hover {
+  transform: translateY(-2px);
+  background: var(--panel-soft);
+}
+
+.gg-awards-button span {
+  font-size: 17px;
+}
+
+.gg-awards-button strong {
+  font-size: 12px;
+}
+
+.gg-awards-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.gg-awards-modal.is-open {
+  display: flex;
+}
+
+.gg-awards-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(3, 4, 7, 0.74);
+  backdrop-filter: blur(8px);
+}
+
+.gg-awards-dialog {
+  position: relative;
+  width: min(820px, 100%);
+  max-height: min(720px, calc(100vh - 48px));
+  overflow: auto;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--panel);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+}
+
+.gg-awards-dialog-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.gg-awards-dialog-head h2 {
+  margin-bottom: 0;
+}
+
+.gg-awards-close {
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 24px;
+}
+
+.gg-awards-close:hover {
+  color: var(--text);
+  background: var(--panel-soft);
+}
+
+.gg-awards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.gg-award-showcase-card {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--panel-soft);
+}
+
+.gg-award-showcase-icon {
+  display: block;
+  margin-bottom: 13px;
+  font-size: 28px;
+}
+
+.gg-award-showcase-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.gg-award-showcase-card strong {
+  display: block;
+  font-size: 18px;
+}
+
+.gg-award-showcase-card small {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.gg-awards-footnote,
+.gg-awards-loading,
+.gg-awards-error {
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.gg-awards-error {
+  color: var(--danger);
+}
+
+@media (max-width: 700px) {
+  .gg-rating-entry {
+    grid-template-columns: 1fr 100px;
+  }
+
+  .gg-awards-button {
+    left: 14px;
+    bottom: 92px;
+  }
+
+  .gg-awards-modal {
+    padding: 14px;
+  }
+
+  .gg-awards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gg-awards-dialog {
+    max-height: calc(100vh - 28px);
+    padding: 18px;
+  }
+}
