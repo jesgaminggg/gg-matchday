@@ -11,6 +11,7 @@ import authRoutes from "./routes/auth.js";
 import galleryRoutes from "./routes/gallery.js";
 import profileSecurityRoutes from "./routes/profileSecurity.js";
 import profileRequestRoutes from "./routes/profileRequests.js";
+import immersiveNewsRoutes from "./routes/immersiveNews.js";
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use("/api/matches", matchRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/news", newsRoutes);
+app.use("/api/immersive-news", immersiveNewsRoutes);
 app.use("/api/profile-requests", profileSecurityRoutes);
 app.use("/api/profile-requests", profileRequestRoutes);
 
