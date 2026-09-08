@@ -7,17 +7,6 @@ function clean(value) {
   return String(value || "").replace(/\s+/g, " ").trim();
 }
 
-function scoreSignature(match) {
-  return [
-    clean(match.name),
-    clean(match.date).slice(0, 10),
-    Number(match.teamA?.score || 0),
-    Number(match.teamB?.score || 0),
-    clean(match.teamA?.label),
-    clean(match.teamB?.label),
-  ].join("|");
-}
-
 function buildScorers(match, team) {
   const counts = new Map();
   const participants = new Map(
@@ -60,8 +49,7 @@ function buildMatchSummary(match) {
 
   const teamALabel = document.createElement("strong");
   teamALabel.textContent = clean(match.teamA?.label) || "Team A";
-  teamA.appendChild(teamALabel);
-  teamA.appendChild(renderScorerLine(buildScorers(match, "A")));
+  teamA.append(teamALabel, renderScorerLine(buildScorers(match, "A")));
 
   const score = document.createElement("div");
   score.className = "v14-history-score";
@@ -72,8 +60,7 @@ function buildMatchSummary(match) {
 
   const teamBLabel = document.createElement("strong");
   teamBLabel.textContent = clean(match.teamB?.label) || "Team B";
-  teamB.appendChild(teamBLabel);
-  teamB.appendChild(renderScorerLine(buildScorers(match, "B")));
+  teamB.append(teamBLabel, renderScorerLine(buildScorers(match, "B")));
 
   summary.append(teamA, score, teamB);
   return summary;
@@ -88,7 +75,8 @@ function findCardMatch(card, matches, used) {
     if (used.has(String(match._id))) return false;
 
     const sameName = name === clean(match.name);
-    const sameScore = scoreText.replace(/\s+/g, "") ===
+    const sameScore =
+      scoreText.replace(/\s+/g, "") ===
       `${Number(match.teamA?.score || 0)}-${Number(match.teamB?.score || 0)}`;
 
     const formattedDate = new Date(match.date).toLocaleDateString(undefined, {
@@ -109,6 +97,15 @@ async function loadMatches() {
 }
 
 async function enhanceRecentMatches() {
+  const recentSection = [...document.querySelectorAll(".section-block")].find(
+    (section) => clean(section.querySelector("h2")?.textContent) === "Recent Matches"
+  );
+
+  if (!recentSection) return;
+
+  const cards = [...recentSection.querySelectorAll("article.match-card")];
+  if (!cards.length) return;
+
   let matches;
 
   try {
@@ -117,9 +114,6 @@ async function enhanceRecentMatches() {
     console.error("GG Matchday match-history enhancement failed:", error);
     return;
   }
-
-  const cards = [...document.querySelectorAll("article.match-card")];
-  if (!cards.length) return;
 
   const used = new Set();
 
@@ -132,33 +126,24 @@ async function enhanceRecentMatches() {
     const oldSummary = card.querySelector(`[${CARD_MARKER}="true"]`);
     oldSummary?.remove();
 
-    const oldLabels = card.querySelector(".match-labels");
-    oldLabels?.remove();
-
+    card.querySelector(".match-labels")?.remove();
     card.appendChild(buildMatchSummary(match));
   });
 }
 
-function schedule() {
-  if ("requestIdleCallback" in window) {
-    window.requestIdleCallback(() => enhanceRecentMatches(), { timeout: 1800 });
-  } else {
-    window.setTimeout(enhanceRecentMatches, 0);
-  }
-}
+let scheduled = false;
 
-const observer = new MutationObserver(() => {
-  if (observer.__scheduled) return;
-  observer.__scheduled = true;
+function schedule() {
+  if (scheduled) return;
+  scheduled = true;
 
   requestAnimationFrame(() => {
-    observer.__scheduled = false;
-
-    if (document.querySelector("article.match-card")) {
-      enhanceRecentMatches();
-    }
+    scheduled = false;
+    enhanceRecentMatches();
   });
-});
+}
+
+const observer = new MutationObserver(schedule);
 
 observer.observe(document.body, {
   childList: true,
