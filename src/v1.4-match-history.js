@@ -104,7 +104,11 @@ async function enhanceRecentMatches() {
   if (!recentSection) return;
 
   const cards = [...recentSection.querySelectorAll("article.match-card")];
-  if (!cards.length) return;
+  const cardsToEnhance = cards.filter(
+    (card) => !card.querySelector(`[${CARD_MARKER}="true"]`)
+  );
+
+  if (!cardsToEnhance.length) return;
 
   let matches;
 
@@ -117,14 +121,11 @@ async function enhanceRecentMatches() {
 
   const used = new Set();
 
-  cards.forEach((card) => {
+  cardsToEnhance.forEach((card) => {
     const match = findCardMatch(card, matches, used);
     if (!match) return;
 
     used.add(String(match._id));
-
-    const oldSummary = card.querySelector(`[${CARD_MARKER}="true"]`);
-    oldSummary?.remove();
 
     card.querySelector(".match-labels")?.remove();
     card.appendChild(buildMatchSummary(match));
