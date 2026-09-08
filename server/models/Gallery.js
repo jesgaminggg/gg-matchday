@@ -22,14 +22,17 @@ const gallerySchema =
         default: null,
       },
 
+      // Kept for display/audit compatibility with existing gallery records.
       uploadedByName: {
         type: String,
         default: "",
+        maxlength: 120,
       },
 
       uploadedByEmail: {
         type: String,
         default: "",
+        maxlength: 180,
       },
 
       matchId: {
@@ -48,6 +51,10 @@ const gallerySchema =
       timestamps: true,
     }
   );
+
+gallerySchema.index({ createdAt: -1 });
+gallerySchema.index({ playerId: 1, createdAt: -1 });
+gallerySchema.index({ matchId: 1, createdAt: -1 });
 
 export default mongoose.model(
   "Gallery",
