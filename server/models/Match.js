@@ -13,6 +13,13 @@ const participantSchema = new mongoose.Schema(
       enum: ["A", "B"],
       required: true,
     },
+
+    rating: {
+      type: Number,
+      min: 0,
+      max: 10,
+      default: null,
+    },
   },
   { _id: false }
 );
