@@ -32,14 +32,19 @@ app.use("/api/profile-requests", profileRequestRoutes);
 app.use("/api/v2", v2Routes);
 
 app.get("/api/health", (req, res) => {
-  res.json({ success: true, message: "Football Tracker API is running" });
+  res.json({
+    success: true,
+    message: "Football Tracker API is running",
+  });
 });
 
 async function startServer() {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log("✅ MongoDB connected");
-    app.listen(PORT, "0.0.0.0", () => console.log(`✅ API running on http://0.0.0.0:${PORT}`));
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`✅ API running on http://0.0.0.0:${PORT}`);
+    });
   } catch (error) {
     console.error("❌ MongoDB connection failed:", error.message);
     process.exit(1);
