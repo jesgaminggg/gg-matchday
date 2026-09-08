@@ -17,11 +17,6 @@ router.get(
   "/",
   async (req, res) => {
     try {
-      const requestedLimit = Number(req.query.limit);
-      const limit = Number.isFinite(requestedLimit)
-        ? Math.min(Math.max(Math.trunc(requestedLimit), 1), 60)
-        : 40;
-
       const photos = await Gallery.find()
         .select(
           "imageUrl caption uploadedBy uploadedByName matchId playerId createdAt"
@@ -35,10 +30,13 @@ router.get(
           "name profileImage"
         )
         .sort({ createdAt: -1 })
-        .limit(limit)
         .lean();
 
-      res.set("Cache-Control", "public, max-age=10, stale-while-revalidate=30");
+      res.set(
+        "Cache-Control",
+        "public, max-age=10, stale-while-revalidate=30"
+      );
+
       res.json(photos);
     } catch (error) {
       console.error(
