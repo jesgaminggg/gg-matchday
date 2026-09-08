@@ -11,6 +11,7 @@ import authRoutes from "./routes/auth.js";
 import galleryRoutes from "./routes/gallery.js";
 import profileSecurityRoutes from "./routes/profileSecurity.js";
 import profileRequestRoutes from "./routes/profileRequests.js";
+import v2Routes from "./routes/v2.js";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use("/api/gallery", galleryRoutes);
 app.use("/api/news", newsRoutes);
 app.use("/api/profile-requests", profileSecurityRoutes);
 app.use("/api/profile-requests", profileRequestRoutes);
+app.use("/api/v2", v2Routes);
 
 app.get("/api/health", (req, res) => {
   res.json({ success: true, message: "Football Tracker API is running" });
