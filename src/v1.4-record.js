@@ -44,8 +44,7 @@ function getSignature(record) {
 
   if (!assignmentSection) return "";
 
-  const rows = Array.from(assignmentSection.querySelectorAll(".assignment-row"));
-  return rows
+  const assignment = Array.from(assignmentSection.querySelectorAll(".assignment-row"))
     .map((row) => {
       const name = normalize(row.querySelector(".assignment-player strong")?.textContent);
       const side = normalize(row.querySelector(".assignment-player small")?.textContent);
@@ -54,6 +53,12 @@ function getSignature(record) {
       return `${name}|${side}|${active}`;
     })
     .join("||");
+
+  const statValues = Array.from(record.querySelectorAll(".stat-entry"))
+    .map((row) => normalize(row.textContent))
+    .join("||");
+
+  return `${assignment}###${statValues}`;
 }
 
 function buildRecordStats(record) {
