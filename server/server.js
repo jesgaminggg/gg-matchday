@@ -11,7 +11,7 @@ import authRoutes from "./routes/auth.js";
 import galleryRoutes from "./routes/gallery.js";
 import profileSecurityRoutes from "./routes/profileSecurity.js";
 import profileRequestRoutes from "./routes/profileRequests.js";
-import v2Routes from "./routes/v2.js";
+import v2Routes from "./routes/v2final.js";
 
 dotenv.config();
 
