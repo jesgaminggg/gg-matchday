@@ -53,6 +53,7 @@ const matchSchema = new mongoose.Schema(
       type: String,
       trim: true,
       default: "Football Match",
+      maxlength: 160,
     },
 
     teamA: {
@@ -60,6 +61,7 @@ const matchSchema = new mongoose.Schema(
         type: String,
         trim: true,
         default: "Team A",
+        maxlength: 80,
       },
       score: {
         type: Number,
@@ -73,6 +75,7 @@ const matchSchema = new mongoose.Schema(
         type: String,
         trim: true,
         default: "Team B",
+        maxlength: 80,
       },
       score: {
         type: Number,
@@ -95,5 +98,7 @@ const matchSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+matchSchema.index({ date: -1 });
 
 export default mongoose.model("Match", matchSchema);
