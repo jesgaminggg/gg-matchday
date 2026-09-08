@@ -120,7 +120,8 @@ function buildRecordStats(record) {
     const name = normalize(assignmentRow.querySelector(".assignment-player strong")?.textContent);
     if (!name) return;
 
-    const teamButtons = assignmentRow.querySelectorAll(".team-switch button");
+    const teamButtons = Array.from(assignmentRow.querySelectorAll(".team-switch button"));
+    const activeSideIndex = teamButtons.findIndex((button) => button.classList.contains("active"));
     const goal = goals.get(name);
     const assist = assists.get(name);
     const sideText = normalize(assignmentRow.querySelector(".assignment-player small")?.textContent);
@@ -141,9 +142,24 @@ function buildRecordStats(record) {
     sideCell.className = "v14-side-cell";
     ["1", "2"].forEach((label, index) => {
       const source = teamButtons[index];
-      sideCell.appendChild(
-        makeButton("v14-side-button", label, () => source?.click(), !source)
+      const sideButton = makeButton(
+        "v14-side-button",
+        label,
+        () => {
+          if (!source) return;
+          source.click();
+          Array.from(sideCell.children).forEach((button) => button.classList.remove("active"));
+          sideButton.classList.add("active");
+          teamLabel.textContent = index === 0 ? "Team A" : "Team B";
+        },
+        !source
       );
+
+      if (assigned && activeSideIndex === index) {
+        sideButton.classList.add("active");
+      }
+
+      sideCell.appendChild(sideButton);
     });
 
     function counterCell(item) {
