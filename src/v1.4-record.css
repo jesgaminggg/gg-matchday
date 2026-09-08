@@ -78,13 +78,24 @@
   background: var(--panel-soft);
   color: var(--text);
   font-weight: 800;
-  transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+  transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
 }
 
-.v14-side-button:hover,
+.v14-side-button.active {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.42);
+  color: #fff;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 14px rgba(255, 255, 255, 0.08);
+}
+
+.v14-side-button:hover:not(:disabled),
 .v14-counter-button:hover:not(:disabled) {
   transform: translateY(-1px);
   border-color: #3a4250;
+}
+
+.v14-side-button.active:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.55);
 }
 
 .v14-counter-value {
@@ -92,7 +103,8 @@
   text-align: center;
 }
 
-.v14-counter-button:disabled {
+.v14-counter-button:disabled,
+.v14-side-button:disabled {
   cursor: not-allowed;
   opacity: 0.32;
 }
