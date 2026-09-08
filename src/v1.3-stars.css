@@ -1,0 +1,71 @@
+/* =========================================================
+   v1.3 — SUBTLE STAR BACKGROUND
+   Background-only visual layer. No layout or component changes.
+========================================================= */
+
+body {
+  position: relative;
+  isolation: isolate;
+  overflow-x: hidden;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: -20%;
+  pointer-events: none;
+  z-index: -1;
+  background-repeat: repeat;
+  will-change: transform;
+}
+
+/* Small, dim stars — slow diagonal drift */
+body::before {
+  opacity: 0.42;
+  background-image:
+    radial-gradient(circle at 18px 24px, rgba(255, 255, 255, 0.62) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 74px 92px, rgba(255, 255, 255, 0.42) 0 0.8px, transparent 1.4px),
+    radial-gradient(circle at 136px 46px, rgba(255, 255, 255, 0.5) 0 0.9px, transparent 1.5px),
+    radial-gradient(circle at 188px 128px, rgba(255, 255, 255, 0.34) 0 0.7px, transparent 1.3px),
+    radial-gradient(circle at 242px 70px, rgba(255, 255, 255, 0.46) 0 0.8px, transparent 1.4px);
+  background-size: 280px 180px;
+  animation: ggStarsDrift 38s linear infinite;
+}
+
+/* Fewer brighter stars — independent, even slower movement */
+body::after {
+  opacity: 0.26;
+  background-image:
+    radial-gradient(circle at 42px 58px, rgba(255, 255, 255, 0.9) 0 1.2px, transparent 2px),
+    radial-gradient(circle at 154px 118px, rgba(255, 255, 255, 0.72) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 232px 34px, rgba(255, 255, 255, 0.78) 0 1.1px, transparent 1.9px),
+    radial-gradient(circle at 316px 154px, rgba(255, 255, 255, 0.62) 0 0.9px, transparent 1.7px);
+  background-size: 360px 210px;
+  animation: ggStarsDriftReverse 52s linear infinite;
+}
+
+@keyframes ggStarsDrift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(90px, 55px, 0);
+  }
+}
+
+@keyframes ggStarsDriftReverse {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-70px, -42px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  body::after {
+    animation: none;
+  }
+}
