@@ -6,6 +6,7 @@
  */
 
 const RECORD_MARKER = "data-gg-v14-record";
+const RECORD_SIGNATURE = "data-gg-v14-signature";
 
 function normalize(value) {
   return String(value || "")
@@ -24,15 +25,9 @@ function makeButton(className, label, onClick, disabled = false) {
 }
 
 function readCounterRow(row) {
-  const name = normalize(
-    row.querySelector("strong")?.textContent
-  );
-  const buttons = Array.from(
-    row.querySelectorAll(".counter button")
-  );
-  const value = normalize(
-    row.querySelector(".counter > strong")?.textContent
-  );
+  const name = normalize(row.querySelector("strong")?.textContent);
+  const buttons = Array.from(row.querySelectorAll(".counter button"));
+  const value = normalize(row.querySelector(".counter > strong")?.textContent);
 
   return {
     name,
@@ -42,33 +37,41 @@ function readCounterRow(row) {
   };
 }
 
-function buildRecordStats(record) {
-  if (!record || record.hasAttribute(RECORD_MARKER)) return;
+function getSignature(record) {
+  const assignmentSection = Array.from(record.querySelectorAll(".subsection")).find(
+    (section) => normalize(section.textContent).includes("Assign Players")
+  );
 
-  const assignmentSection = Array.from(
-    record.querySelectorAll(".subsection")
-  ).find((section) =>
-    normalize(section.textContent).includes("Assign Players")
+  if (!assignmentSection) return "";
+
+  const rows = Array.from(assignmentSection.querySelectorAll(".assignment-row"));
+  return rows
+    .map((row) => {
+      const name = normalize(row.querySelector(".assignment-player strong")?.textContent);
+      const side = normalize(row.querySelector(".assignment-player small")?.textContent);
+      const teamButtons = Array.from(row.querySelectorAll(".team-switch button"));
+      const active = teamButtons.findIndex((button) => button.classList.contains("active"));
+      return `${name}|${side}|${active}`;
+    })
+    .join("||");
+}
+
+function buildRecordStats(record) {
+  const assignmentSection = Array.from(record.querySelectorAll(".subsection")).find(
+    (section) => normalize(section.textContent).includes("Assign Players")
   );
 
   if (!assignmentSection) return;
 
-  const assignmentRows = Array.from(
-    assignmentSection.querySelectorAll(".assignment-row")
-  );
-
+  const assignmentRows = Array.from(assignmentSection.querySelectorAll(".assignment-row"));
   if (!assignmentRows.length) return;
 
-  const originalSections = Array.from(
-    record.querySelectorAll(".subsection")
+  const originalSections = Array.from(record.querySelectorAll(".subsection"));
+  const goalSections = originalSections.filter(
+    (section) => normalize(section.querySelector(".eyebrow")?.textContent) === "GOALS"
   );
-
-  const goalSections = originalSections.filter((section) =>
-    normalize(section.querySelector(".eyebrow")?.textContent) === "GOALS"
-  );
-
-  const assistSection = originalSections.find((section) =>
-    normalize(section.querySelector(".eyebrow")?.textContent) === "ASSISTS"
+  const assistSection = originalSections.find(
+    (section) => normalize(section.querySelector(".eyebrow")?.textContent) === "ASSISTS"
   );
 
   const goals = new Map();
@@ -95,7 +98,7 @@ function buildRecordStats(record) {
         <p class="eyebrow">PLAYER STATS</p>
         <h3>Goals &amp; Assists</h3>
       </div>
-      <span class="muted">Set the side, then add stats</span>
+      <span class="muted">Assign a side, then add stats</span>
     </div>
     <div class="v14-stat-head">
       <span>PLAYER</span>
@@ -109,17 +112,14 @@ function buildRecordStats(record) {
   const list = combined.querySelector(".v14-stat-list");
 
   assignmentRows.forEach((assignmentRow) => {
-    const name = normalize(
-      assignmentRow.querySelector(".assignment-player strong")?.textContent
-    );
+    const name = normalize(assignmentRow.querySelector(".assignment-player strong")?.textContent);
     if (!name) return;
 
     const teamButtons = assignmentRow.querySelectorAll(".team-switch button");
     const goal = goals.get(name);
     const assist = assists.get(name);
-    const assigned = normalize(
-      assignmentRow.querySelector(".assignment-player small")?.textContent
-    ) !== "Not participating";
+    const sideText = normalize(assignmentRow.querySelector(".assignment-player small")?.textContent);
+    const assigned = sideText !== "Not participating";
 
     const row = document.createElement("div");
     row.className = "v14-stat-row";
@@ -129,23 +129,16 @@ function buildRecordStats(record) {
     const playerName = document.createElement("strong");
     playerName.textContent = name;
     const teamLabel = document.createElement("small");
-    teamLabel.textContent = normalize(
-      assignmentRow.querySelector(".assignment-player small")?.textContent
-    );
+    teamLabel.textContent = sideText;
     playerCell.append(playerName, teamLabel);
 
     const sideCell = document.createElement("div");
     sideCell.className = "v14-side-cell";
-
     ["1", "2"].forEach((label, index) => {
       const source = teamButtons[index];
-      const proxy = makeButton(
-        "v14-side-button",
-        label,
-        () => source?.click(),
-        !source
+      sideCell.appendChild(
+        makeButton("v14-side-button", label, () => source?.click(), !source)
       );
-      sideCell.appendChild(proxy);
     });
 
     function counterCell(item) {
@@ -170,13 +163,7 @@ function buildRecordStats(record) {
       return cell;
     }
 
-    row.append(
-      playerCell,
-      sideCell,
-      counterCell(goal),
-      counterCell(assist)
-    );
-
+    row.append(playerCell, sideCell, counterCell(goal), counterCell(assist));
     list.appendChild(row);
   });
 
@@ -187,28 +174,34 @@ function buildRecordStats(record) {
   });
   if (assistSection) assistSection.style.display = "none";
 
-  // React owns the source controls. Rebuild this presentation whenever React
-  // changes the assignment/stats DOM so counters and team labels stay current.
   record.setAttribute(RECORD_MARKER, "true");
-}
-
-function refreshRecord(record) {
-  const existing = record.querySelector(`[${RECORD_MARKER}="true"]`);
-  if (existing) {
-    existing.remove();
-    record.removeAttribute(RECORD_MARKER);
-    record.querySelectorAll(".subsection").forEach((section) => {
-      section.style.display = "";
-    });
-  }
-  buildRecordStats(record);
+  record.setAttribute(RECORD_SIGNATURE, getSignature(record));
 }
 
 function scan() {
   document.querySelectorAll(".tab-content").forEach((section) => {
     const heading = normalize(section.querySelector(".page-title h2")?.textContent);
     if (heading !== "Record a Match" && heading !== "Edit Match") return;
-    refreshRecord(section);
+
+    const assignmentSection = Array.from(section.querySelectorAll(".subsection")).find(
+      (item) => normalize(item.textContent).includes("Assign Players")
+    );
+    if (!assignmentSection) return;
+
+    const signature = getSignature(section);
+    const existing = section.querySelector(`[${RECORD_MARKER}="true"]`);
+    const previousSignature = section.getAttribute(RECORD_SIGNATURE) || "";
+
+    if (existing && signature === previousSignature) return;
+
+    if (existing) existing.remove();
+    section.querySelectorAll(".subsection").forEach((item) => {
+      item.style.display = "";
+    });
+    section.removeAttribute(RECORD_MARKER);
+    section.removeAttribute(RECORD_SIGNATURE);
+
+    buildRecordStats(section);
   });
 }
 
